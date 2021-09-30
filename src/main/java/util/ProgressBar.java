@@ -1,5 +1,7 @@
 package util;
 
+import java.io.IOException;
+
 public class ProgressBar {
 
     public static int index = 0;
@@ -20,11 +22,12 @@ public class ProgressBar {
     }
 
 
-    public static void printProgress_init() throws InterruptedException {
+    public static void printProgress_init() throws InterruptedException, IOException {
+        cls();
         System.out.print("Progress:");
 
         finish = getNChar(index / BITE, '█');
-        unFinish = getNChar(PROGRESS_SIZE - index / BITE, '─');
+        unFinish = getNChar(PROGRESS_SIZE - index / BITE, '—');
         target = String.format("%3d%%[%s%s]", index, finish, unFinish);
         System.out.print(target);
 
@@ -33,19 +36,23 @@ public class ProgressBar {
 
 
 
-    public static void printProgress_doing() throws InterruptedException {
+    public static void printProgress_doing() throws InterruptedException, IOException {
         if(index >= 101)
             return;
+        cls();
         finish = getNChar(index / BITE, '█');
-        unFinish = getNChar(PROGRESS_SIZE - index / BITE, '─');
+        unFinish = getNChar(PROGRESS_SIZE - index / BITE, '—');
 
-        target = String.format("%3d%%├%s%s┤", index, finish, unFinish);
+        target = String.format("%3d%%[%s%s]", index, finish, unFinish);
         System.out.print(getNChar(PROGRESS_SIZE + 6, '\b'));
-        System.out.print(target);
+        System.out.print("Progress:" + target);
         index += 10;
     }
 
 
+    public static void cls() throws IOException, InterruptedException{
+        new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+    }
 
 
 //    public static void main(String[] args) throws InterruptedException {

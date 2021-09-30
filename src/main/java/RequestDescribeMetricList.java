@@ -135,7 +135,7 @@ public class RequestDescribeMetricList {
 
 
         }catch (Exception e){
-            e.printStackTrace();
+//            e.printStackTrace();
         }
 
         row.add("NULL");
@@ -246,26 +246,39 @@ public class RequestDescribeMetricList {
 
 
     public List<DatapointsEty> handleResponse(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period){
-        String responseJson;
+        String responseJson = "";
         List<DatapointsEty> Datapointslist = new ArrayList<DatapointsEty>();
 
 
         try {
             //校验API
-            responseJson = ca.DescribeMetricListByEcs(rp, MetricName, "acs_ecs_dashboard", InstanceId, organizationid, StartTime, EndTime, Period);
-            if (responseJson.indexOf("false") != -1 || responseJson.indexOf("Datapoints") == -1 || responseJson.indexOf("ServiceUnavailable") != -1) {
-                //System.out.println("API调用错误,重试一次!");
+//            responseJson = ca.DescribeMetricListByEcs(rp, MetricName, "acs_ecs_dashboard", InstanceId, organizationid, StartTime, EndTime, Period);
+//            if (responseJson.indexOf("false") != -1 || responseJson.indexOf("Datapoints") == -1 || responseJson.indexOf("ServiceUnavailable") != -1) {
+//                //System.out.println("API调用错误,重试一次!");
+//                responseJson = ca.DescribeMetricListByEcs(rp, MetricName, "acs_ecs_dashboard", InstanceId, organizationid, StartTime, EndTime, Period);
+//                if (responseJson.indexOf("false") != -1 || responseJson.indexOf("Datapoints") == -1 || responseJson.indexOf("ServiceUnavailable") != -1) {
+//                    //System.out.println("API调用错误,重试二次!");
+//                    responseJson = ca.DescribeMetricListByEcs(rp, MetricName, "acs_ecs_dashboard", InstanceId, organizationid, StartTime, EndTime, Period);
+//                    if (responseJson.indexOf("false") != -1 || responseJson.indexOf("Datapoints") == -1 || responseJson.indexOf("ServiceUnavailable") != -1) {
+//                        System.out.println("API调用错误,跳过!统计参数将设置为0!");
+//                        return null;
+//                    }
+//
+//                }
+//            }
+            int count = 5;
+            while(true){
+                count--;
+                if(count == 0)
+                    return null;
                 responseJson = ca.DescribeMetricListByEcs(rp, MetricName, "acs_ecs_dashboard", InstanceId, organizationid, StartTime, EndTime, Period);
                 if (responseJson.indexOf("false") != -1 || responseJson.indexOf("Datapoints") == -1 || responseJson.indexOf("ServiceUnavailable") != -1) {
-                    //System.out.println("API调用错误,重试二次!");
-                    responseJson = ca.DescribeMetricListByEcs(rp, MetricName, "acs_ecs_dashboard", InstanceId, organizationid, StartTime, EndTime, Period);
-                    if (responseJson.indexOf("false") != -1 || responseJson.indexOf("Datapoints") == -1 || responseJson.indexOf("ServiceUnavailable") != -1) {
-                        System.out.println("API调用错误,跳过!统计参数将设置为0!");
-                        return null;
-                    }
-
+                    continue;
                 }
+                break;
             }
+
+
 
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -283,7 +296,7 @@ public class RequestDescribeMetricList {
             for (i = 0; i < datajn.size(); i++) {
                 tempstring = datajn.get(i).toString();
                 if (datajn.size() == 0 || tempstring.contains("?") || tempstring.contains("Average\":\"")) {
-                    System.out.println("返回错误 替换相关值为0");
+//                    System.out.println("返回错误 替换相关值为0");
 
                     k = tempstring.indexOf("\"Average");
 
@@ -296,7 +309,7 @@ public class RequestDescribeMetricList {
                     c = c.concat(b);
 
                     tempstring = c;
-                    System.out.println(tempstring);
+//                    System.out.println(tempstring);
                 }
 
                 de = mapper.readValue(tempstring, DatapointsEty.class);

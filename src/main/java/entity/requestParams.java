@@ -7,7 +7,7 @@ public class requestParams {
 	private String RegionId;
 	private String AccessKeyId;
 	private String AccessKeySecret;
-	private String apiGateWay;
+	private String ApiGateWay;
 	private String StartTime;
 	private String EndTime;
 	private String Period;
@@ -29,20 +29,22 @@ public class requestParams {
 
 	}
 
-	public requestParams(String regionId, String accessKeyId, String accessKeySecret, String apiGateWay,
-			String startTime, String endTime, String period, String action, String product, String version, String id) {
-		super();
-		RegionId = regionId;
-		AccessKeyId = accessKeyId;
-		AccessKeySecret = accessKeySecret;
-		this.apiGateWay = apiGateWay;
-		StartTime = startTime;
-		EndTime = endTime;
-		Period = period;
-		this.action = action;
-		this.product = product;
-		Version = version;
-		Id = id;
+	@Override
+	public String toString() {
+		return "requestParams{" +
+				"RegionId='" + RegionId + '\'' +
+				", AccessKeyId='" + AccessKeyId + '\'' +
+				", AccessKeySecret='" + AccessKeySecret + '\'' +
+				", ApiGateWay='" + ApiGateWay + '\'' +
+				", StartTime='" + StartTime + '\'' +
+				", EndTime='" + EndTime + '\'' +
+				", Period='" + Period + '\'' +
+				", action='" + action + '\'' +
+				", product='" + product + '\'' +
+				", Version='" + Version + '\'' +
+				", Id='" + Id + '\'' +
+				", displayName='" + displayName + '\'' +
+				'}';
 	}
 
 	public String getRegionId() {
@@ -70,11 +72,11 @@ public class requestParams {
 	}
 
 	public String getApiGateWay() {
-		return apiGateWay;
+		return ApiGateWay;
 	}
 
-	public void setApiGateWay(String apiGateWay) {
-		this.apiGateWay = apiGateWay;
+	public void setApiGateWay(String ApiGateWay) {
+		this.ApiGateWay = ApiGateWay;
 	}
 
 	public String getStartTime() {

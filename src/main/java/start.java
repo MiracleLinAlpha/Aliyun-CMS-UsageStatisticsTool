@@ -61,7 +61,7 @@ public class start {
                     System.out.println("\n+ -- -- =>>用户:	" + displayName + "		<<\n");
                     System.out.println("\n---------------------------------------------------------\n");
                     System.out.println("\n---------------------------------------------------------\n");
-                    scan.nextLine();
+//                    scan.nextLine();
                     while(true) {
                         System.out.println("请输入开始时间(2021-07-10 10:30:00)：");
                         StartTime = scan.nextLine();
@@ -141,8 +141,8 @@ public class start {
             ExcelUtils.addHeader(Arrays.asList("组织", "实例名称", "实例ID", "操作系统", "IP", "CPU核心数", "内存", "创建时间", "CPU平均使用率", "CPU最大使用率", "CPU最小使用率", "内存平均使用率", "内存最大使用率", "内存最小使用率")
                     ,false);
 
-//            int num = ecsinfolist.size();
-            int num = 100;
+            int num = ecsinfolist.size();
+//            int num = 100;
             int midNum = (int)(num/2);
 
 
@@ -210,7 +210,6 @@ public class start {
 
         try {
             String userinfojson = Ascm_Api.GetUserInfo(rp);
-            System.out.println(userinfojson);
             JsonNode userinfojn = mapper.readTree(userinfojson);
             userinfojn = userinfojn.get("data").get("displayName");
             displayName = userinfojn.toString();
