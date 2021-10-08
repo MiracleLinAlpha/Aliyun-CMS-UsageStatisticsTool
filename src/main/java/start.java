@@ -152,22 +152,11 @@ public class start {
             CompletableFuture<List<List<Object>>> cf1 = CompletableFuture.supplyAsync(()->{
                 List<Object> row = new ArrayList<>();
                 List<List<Object>> rowList = new ArrayList<>();
-                try {
-                    int temp1 = 0;
-                    for (int j = 0; j < midNum; j++) {
-                        float progressNum = 100.0F / midNum;
-                        if ((int)(j * progressNum) % 10 == 0 && temp1 != (int)(j * progressNum)) {
-                            ProgressBar.printProgress_doing();
-                        }
-                        row = rdml.HandleSingleThread(rp,ecsinfolist.get(j),StartTime,EndTime,Period);
-                        rowList.add(row);
-                    }
-                    ProgressBar.printProgress_doing();
-                    return rowList;
-                }catch (Exception e){
-                    e.printStackTrace();
-                    return rowList;
+                for (int j = 0; j < midNum; j++) {
+                    row = rdml.HandleSingleThread(rp, ecsinfolist.get(j), StartTime, EndTime, Period);
+                    rowList.add(row);
                 }
+                return rowList;
             });
 
 
@@ -175,15 +164,25 @@ public class start {
             CompletableFuture<List<List<Object>>> cf2 = CompletableFuture.supplyAsync(()->{
                 List<Object> row = new ArrayList<>();
                 List<List<Object>> rowList = new ArrayList<>();
-                for(int j=midNum;j<num;j++){
-
-                    row = rdml.HandleSingleThread(rp,ecsinfolist.get(j),StartTime,EndTime,Period);
-                    rowList.add(row);
+                try {
+                    int temp1 = 0;
+                    for(int j=midNum;j<num;j++){
+                        float progressNum = 100.0F / midNum;
+                        if ((int)(j * progressNum) % 10 == 0 && temp1 != (int)(j * progressNum)) {
+                            ProgressBar.printProgress_doing();
+                        }
+                        row = rdml.HandleSingleThread(rp,ecsinfolist.get(j),StartTime,EndTime,Period);
+                        rowList.add(row);
+                    }
+                    return rowList;
+                }catch (Exception e){
+//                    e.printStackTrace();
+                    return rowList;
                 }
-                return rowList;
+
             });
 
-
+            ProgressBar.printProgress_doing();
             List<List<Object>> addToAll = new ArrayList<>();
             addToAll.addAll(cf1.get());
             addToAll.addAll(cf2.get());

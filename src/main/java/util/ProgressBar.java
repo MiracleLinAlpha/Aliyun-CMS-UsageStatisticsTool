@@ -24,7 +24,7 @@ public class ProgressBar {
 
     public static void printProgress_init() throws InterruptedException, IOException {
         cls();
-        System.out.print("Progress:");
+        System.out.print("进度:");
 
         finish = getNChar(index / BITE, '█');
         unFinish = getNChar(PROGRESS_SIZE - index / BITE, '—');
@@ -45,7 +45,7 @@ public class ProgressBar {
 
         target = String.format("%3d%%[%s%s]", index, finish, unFinish);
         System.out.print(getNChar(PROGRESS_SIZE + 6, '\b'));
-        System.out.print("Progress:" + target);
+        System.out.print("进度:" + target);
         index += 10;
     }
 

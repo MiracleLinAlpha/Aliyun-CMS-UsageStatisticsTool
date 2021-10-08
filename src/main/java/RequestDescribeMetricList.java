@@ -266,7 +266,7 @@ public class RequestDescribeMetricList {
 //
 //                }
 //            }
-            int count = 5;
+            int count = 6;
             while(true){
                 count--;
                 if(count == 0)
