@@ -33,7 +33,6 @@ public class RequestDescribeMetricList {
     public static String tempstring,a,b,c;
     public static DatapointsEty de = new DatapointsEty();
     public static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    public static long segmentationTime;
     public static String Time1,Time2;
     public static TimeUtil timeutil = new TimeUtil();
     public static utc2Local u2l = new utc2Local();
@@ -207,7 +206,7 @@ public class RequestDescribeMetricList {
             //开始时间到结束时间超过一个月，则分月请求处理
             //30天时间间隔为2592000000L  segmentation
             if(df.parse(EndTime).getTime() - df.parse(StartTime).getTime() > 2592000000L) {
-                segmentationTime = df.parse(EndTime).getTime() - df.parse(StartTime).getTime();
+                long segmentationTime = df.parse(EndTime).getTime() - df.parse(StartTime).getTime();
                 Time1 = StartTime;
                 Time2 = Time1;
                 int frequency = (int) (segmentationTime/2592000000L);
