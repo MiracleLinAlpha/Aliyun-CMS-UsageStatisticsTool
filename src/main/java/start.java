@@ -146,7 +146,7 @@ public class start {
 
 
             ProgressBar.printProgress_init();
-
+            ProgressBar.printProgress_doing();
 
             CompletableFuture<List<List<Object>>> cf1 = CompletableFuture.supplyAsync(()->{
                 List<Object> row = new ArrayList<>();
@@ -165,10 +165,11 @@ public class start {
                 List<List<Object>> rowList = new ArrayList<>();
                 try {
                     int temp1 = 0;
-                    for(int j=midNum;j<num;j++){
-                        float progressNum = 100.0F / midNum;
+                    float progressNum = 100.0F / (num-midNum);
+                    for(int j=0;j<(num-midNum);j++){
                         if ((int)(j * progressNum) % 10 == 0 && temp1 != (int)(j * progressNum)) {
                             ProgressBar.printProgress_doing();
+                            temp1 = (int)(j * progressNum);
                         }
                         row = RequestDescribeMetricList.HandleSingleThread(rp,ecsinfolist.get(j),StartTime,EndTime,Period);
                         rowList.add(row);
