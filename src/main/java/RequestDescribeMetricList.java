@@ -23,7 +23,7 @@ public class RequestDescribeMetricList {
 
 
 
-    public List<Object> HandleSingleThread(requestParams rp, ecsInfo ecsinfo, String StartTime, String EndTime, String Period){
+    public static List<Object> HandleSingleThread(requestParams rp, ecsInfo ecsinfo, String StartTime, String EndTime, String Period){
         List<Object> row = new ArrayList<>();
         Object cpuAvg,cpuMax,cpuMin,memAvg,memMax,memMin;
         Map<String,Object> mapTemp = new HashMap<>();
@@ -128,7 +128,7 @@ public class RequestDescribeMetricList {
 
 
 
-    public Map<String, Object> analysisResponse(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period) throws Exception {
+    public static Map<String, Object> analysisResponse(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period) throws Exception {
         List<DatapointsEty> Datapointslist = new ArrayList<DatapointsEty>();
         float Avg,Max,Min,avgtemp,maxtemp,mintemp,availableNum;
 
@@ -184,7 +184,7 @@ public class RequestDescribeMetricList {
 
 
 
-    public List<DatapointsEty> handlesegmentationTime(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period){
+    public static List<DatapointsEty> handlesegmentationTime(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period){
         List<DatapointsEty> Datapointslist = new ArrayList<DatapointsEty>();
         String Time1,Time2;
         int k;
@@ -232,7 +232,7 @@ public class RequestDescribeMetricList {
 
 
 
-    public List<DatapointsEty> handleResponse(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period){
+    public static List<DatapointsEty> handleResponse(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period){
         String responseJson = "";
         DatapointsEty de = new DatapointsEty();
         List<DatapointsEty> Datapointslist = new ArrayList<DatapointsEty>();

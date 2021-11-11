@@ -19,7 +19,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class start {
     public static requestParams rp = new requestParams();
-    public static RequestDescribeMetricList rdml = new RequestDescribeMetricList();
     public static String displayName;
     public static Scanner scan = new Scanner(System.in);
     public static String choose = "0";
@@ -153,7 +152,7 @@ public class start {
                 List<Object> row = new ArrayList<>();
                 List<List<Object>> rowList = new ArrayList<>();
                 for (int j = 0; j < midNum; j++) {
-                    row = rdml.HandleSingleThread(rp, ecsinfolist.get(j), StartTime, EndTime, Period);
+                    row = RequestDescribeMetricList.HandleSingleThread(rp, ecsinfolist.get(j), StartTime, EndTime, Period);
                     rowList.add(row);
                 }
                 return rowList;
@@ -171,7 +170,7 @@ public class start {
                         if ((int)(j * progressNum) % 10 == 0 && temp1 != (int)(j * progressNum)) {
                             ProgressBar.printProgress_doing();
                         }
-                        row = rdml.HandleSingleThread(rp,ecsinfolist.get(j),StartTime,EndTime,Period);
+                        row = RequestDescribeMetricList.HandleSingleThread(rp,ecsinfolist.get(j),StartTime,EndTime,Period);
                         rowList.add(row);
                     }
                     return rowList;
