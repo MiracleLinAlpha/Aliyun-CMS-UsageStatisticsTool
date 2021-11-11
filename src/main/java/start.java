@@ -138,7 +138,7 @@ public class start {
             //创建表格
             ExcelUtils.createExcel();
             ExcelUtils.createSheet("Sheet1");
-            ExcelUtils.addHeader(Arrays.asList("组织", "实例名称", "实例ID", "操作系统", "IP", "CPU核心数", "内存", "创建时间", "CPU平均使用率", "CPU最大使用率", "CPU最小使用率", "内存平均使用率", "内存最大使用率", "内存最小使用率")
+            ExcelUtils.addHeader(Arrays.asList("组织", "实例名称", "实例ID", "操作系统", "IP", "CPU核心数", "内存", "创建时间", "CPU平均使用率", "CPU最大使用率", "CPU最小使用率", "内存平均使用率", "内存最大使用率", "内存最小使用率", "开始时间", "截止时间")
                     ,false);
 
             int num = ecsinfolist.size();
