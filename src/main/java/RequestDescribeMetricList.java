@@ -112,8 +112,8 @@ public class RequestDescribeMetricList {
             row.add(memAvg);
             row.add(memMax);
             row.add(memMin);
-            row.add(mapTemp.get("start"));
-            row.add(mapTemp.get("end"));
+            row.add(TimeUtil.StampToTime((long)mapTemp.get("start")));
+            row.add(TimeUtil.StampToTime((long)mapTemp.get("end")));
 
             return row;
 

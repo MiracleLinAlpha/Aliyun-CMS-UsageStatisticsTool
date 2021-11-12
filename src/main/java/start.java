@@ -171,7 +171,7 @@ public class start {
                             ProgressBar.printProgress_doing();
                             temp1 = (int)(j * progressNum);
                         }
-                        row = RequestDescribeMetricList.HandleSingleThread(rp,ecsinfolist.get(j),StartTime,EndTime,Period);
+                        row = RequestDescribeMetricList.HandleSingleThread(rp,ecsinfolist.get(j+midNum),StartTime,EndTime,Period);
                         rowList.add(row);
                     }
                     return rowList;
