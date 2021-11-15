@@ -152,7 +152,10 @@ public class start {
                 List<Object> row = new ArrayList<>();
                 List<List<Object>> rowList = new ArrayList<>();
                 for (int j = 0; j < midNum; j++) {
-                    row = RequestDescribeMetricList.HandleSingleThread(rp, ecsinfolist.get(j), StartTime, EndTime, Period);
+                    RequestDescribeMetricList rd = new RequestDescribeMetricList();
+                    row = rd.HandleSingleThread(rp, ecsinfolist.get(j), StartTime, EndTime, Period);
+                    while(row.get(0).equals("NULL"))
+                        row = rd.HandleSingleThread(rp, ecsinfolist.get(j), StartTime, EndTime, Period);
                     rowList.add(row);
                 }
                 return rowList;
@@ -171,7 +174,10 @@ public class start {
                             ProgressBar.printProgress_doing();
                             temp1 = (int)(j * progressNum);
                         }
-                        row = RequestDescribeMetricList.HandleSingleThread(rp,ecsinfolist.get(j+midNum),StartTime,EndTime,Period);
+                        RequestDescribeMetricList rd = new RequestDescribeMetricList();
+                        row = rd.HandleSingleThread(rp,ecsinfolist.get(j+midNum),StartTime,EndTime,Period);
+                        while(row.get(0).equals("NULL"))
+                            row = rd.HandleSingleThread(rp,ecsinfolist.get(j+midNum),StartTime,EndTime,Period);
                         rowList.add(row);
                     }
                     return rowList;

@@ -18,14 +18,14 @@ import java.util.List;
 import java.util.Map;
 
 public class RequestDescribeMetricList {
-    public static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static int retryNum = 6;
 
 
 
-    public static List<Object> HandleSingleThread(requestParams rp, ecsInfo ecsinfo, String StartTime, String EndTime, String Period){
+    public List<Object> HandleSingleThread(requestParams rp, ecsInfo ecsinfo, String StartTime, String EndTime, String Period){
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<Object> row = new ArrayList<>();
-        Object cpuAvg,cpuMax,cpuMin,memAvg,memMax,memMin;
+        Object cpuAvg,cpuMax,cpuMin,memAvg,memMax,memMin,timeTmpStart,timeTmpEnd;
         Map<String,Object> mapTemp = new HashMap<>();
 
         try {
@@ -92,6 +92,9 @@ public class RequestDescribeMetricList {
             cpuAvg = mapTemp.get("Avg");
             cpuMax = mapTemp.get("Max");
             cpuMin = mapTemp.get("Min");
+            timeTmpStart = mapTemp.get("start");
+            timeTmpEnd = mapTemp.get("end");
+
 
             mapTemp = analysisResponse(rp,"memory_usedutilization",ecsinfo.getInstanceId(),String.valueOf(ecsinfo.getDepartment()),UsefulStartTime,EndTime,Period);
             memAvg = mapTemp.get("Avg");
@@ -112,8 +115,8 @@ public class RequestDescribeMetricList {
             row.add(memAvg);
             row.add(memMax);
             row.add(memMin);
-            row.add(TimeUtil.StampToTime((long)mapTemp.get("start")));
-            row.add(TimeUtil.StampToTime((long)mapTemp.get("end")));
+            row.add(TimeUtil.StampToTime((long)timeTmpStart));
+            row.add(TimeUtil.StampToTime((long)timeTmpEnd));
 
             return row;
 
@@ -128,55 +131,66 @@ public class RequestDescribeMetricList {
 
 
 
-    public static Map<String, Object> analysisResponse(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period) throws Exception {
+    public Map<String, Object> analysisResponse(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period) throws Exception {
         List<DatapointsEty> Datapointslist = new ArrayList<DatapointsEty>();
         float Avg,Max,Min,avgtemp,maxtemp,mintemp,availableNum;
 
         Datapointslist = handlesegmentationTime(rp,MetricName,InstanceId,organizationid,StartTime,EndTime,Period);
 
         //处理数据
-
-        avgtemp = 0;
-        maxtemp = 0;
-        mintemp = 100;
-        availableNum = 0;
-
-
-        for(DatapointsEty item:Datapointslist) {
-            if(item.getAverage() != 0) {
-                avgtemp += item.getAverage();
-                availableNum++;
-            }
-            if(maxtemp < item.getMaximum()) {
-                maxtemp = item.getMaximum();
-            }
-            if(mintemp > item.getMinimum()) {
-                mintemp = item.getMinimum();
-            }
-        }
-
-
-
-        if(availableNum == 0) {
-            Avg = 0;
-            Max = 0;
-            Min = 0;
-        }else {
-            Avg = avgtemp/availableNum;
-            BigDecimal bd = new BigDecimal(Avg);
-            Avg = bd.setScale(2,  RoundingMode.HALF_UP).floatValue();
-
-            Max = maxtemp;
-
-            Min = mintemp;
-        }
-
         Map<String,Object> map = new HashMap<>();
-        map.put("Avg", Avg);
-        map.put("Max", Max);
-        map.put("Min", Min);
-        map.put("start", Datapointslist.get(0).getTimestamp());
-        map.put("end", Datapointslist.get(Datapointslist.size()).getTimestamp());
+        if(Datapointslist.size() != 0) {
+            avgtemp = 0;
+            maxtemp = 0;
+            mintemp = 100;
+            availableNum = 0;
+
+
+            for(DatapointsEty item:Datapointslist) {
+                if(item.getAverage() != 0) {
+                    avgtemp += item.getAverage();
+                    availableNum++;
+                }
+                if(maxtemp < item.getMaximum()) {
+                    maxtemp = item.getMaximum();
+                }
+                if(mintemp > item.getMinimum()) {
+                    mintemp = item.getMinimum();
+                }
+            }
+
+
+
+            if(availableNum == 0) {
+                Avg = 0;
+                Max = 0;
+                Min = 0;
+            }else {
+                Avg = avgtemp/availableNum;
+                BigDecimal bd = new BigDecimal(Avg);
+                Avg = bd.setScale(2,  RoundingMode.HALF_UP).floatValue();
+
+                Max = maxtemp;
+
+                Min = mintemp;
+            }
+
+
+            map.put("Avg", Avg);
+            map.put("Max", Max);
+            map.put("Min", Min);
+            map.put("start", Datapointslist.get(0).getTimestamp());
+            map.put("end", Datapointslist.get(Datapointslist.size()-1).getTimestamp());
+
+        } else {
+            map.put("Avg", "服务器返回数据出错");
+            map.put("Max", "服务器返回数据出错");
+            map.put("Min", "服务器返回数据出错");
+            map.put("start", "服务器返回数据出错");
+            map.put("end", "服务器返回数据出错");
+        }
+
+
 
         return map;
 
@@ -184,7 +198,8 @@ public class RequestDescribeMetricList {
 
 
 
-    public static List<DatapointsEty> handlesegmentationTime(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period){
+    public List<DatapointsEty> handlesegmentationTime(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period){
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<DatapointsEty> Datapointslist = new ArrayList<DatapointsEty>();
         String Time1,Time2;
         int k;
@@ -235,7 +250,7 @@ public class RequestDescribeMetricList {
 
 
 
-    public static List<DatapointsEty> handleResponse(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period){
+    public List<DatapointsEty> handleResponse(requestParams rp, String MetricName, String InstanceId, String organizationid, String StartTime, String EndTime, String Period){
         String responseJson = "";
         DatapointsEty de = new DatapointsEty();
         List<DatapointsEty> Datapointslist = new ArrayList<DatapointsEty>();
