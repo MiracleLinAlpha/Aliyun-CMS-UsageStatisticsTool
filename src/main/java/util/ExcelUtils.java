@@ -172,14 +172,14 @@ public class ExcelUtils {
     }
 
 
-    public static void exportExcelToSameFolder() throws Exception {
+    public static void exportExcelToSameFolder(String fileName) throws Exception {
         try {
             String jarpath = System.getProperty("java.class.path");
             int firstIndex = jarpath.lastIndexOf(System.getProperty("path.separator")) + 1;
             int lastIndex = jarpath.lastIndexOf(File.separator) + 1;
             jarpath = jarpath.substring(firstIndex, lastIndex);
 
-            FileOutputStream fileOut = new FileOutputStream(jarpath + "Usage.xlsx");
+            FileOutputStream fileOut = new FileOutputStream(jarpath + fileName);
             wb.write(fileOut);
             fileOut.close();
 
