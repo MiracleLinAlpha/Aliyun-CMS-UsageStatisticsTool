@@ -75,6 +75,13 @@
             <version>4.1.2</version>
         </dependency>
 
+        <!-- Mozilla的编码识别包 -->
+        <dependency>
+            <groupId>com.googlecode.juniversalchardet</groupId>
+            <artifactId>juniversalchardet</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+
 
     </dependencies>
 

@@ -36,7 +36,7 @@ public class start {
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
             //读取配置文件
-            String confJson = new FileUtil().readFileInSameFolder();
+            String confJson = new FileUtil().readFileInSameFolder("conf.json");
             if(confJson.equals("false")) {
                 System.out.println("配置文件不存在，请确保conf.json与本程序jar包在同一目录后再重新运行 > _ <");
                 return;

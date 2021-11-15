@@ -43,7 +43,7 @@ public class RequestDescribeMetricList {
             }
 
             //状态不为运行中，则返回状态
-            if(ecsinfo.getStatus().equals("Running") == false) {
+            if(!ecsinfo.getStatus().equals("Running")) {
                 row.add(ecsinfo.getDepartmentName());
                 row.add(ecsinfo.getInstanceName());
                 row.add(ecsinfo.getInstanceId());
@@ -221,6 +221,9 @@ public class RequestDescribeMetricList {
                 //开始时间到结束时间小于或等于一个月，单次请求处理
                 Datapointslist = handleResponse(rp,MetricName,InstanceId,organizationid,StartTime,EndTime,Period);
             }
+
+
+
 
             return Datapointslist;
         }catch (Exception e){
