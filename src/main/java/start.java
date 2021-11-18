@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import entity.diskInfo;
 import entity.ecsInfo;
 import entity.requestParams;
 import util.ExcelUtils;
 import util.FileUtil;
 import util.ProgressBar;
+import util.utc2Local;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -131,13 +133,31 @@ public class start {
                 ecsinfolist.add(ei);
             }
 
-            System.out.println("\n当前的ECS总数(包含K8S)：" + ecsinfolist.size());
+//            System.out.println("\n当前的ECS总数(包含K8S)：" + ecsinfolist.size());
+
+
+            //读取所有磁盘信息，遍历为实体类
+            temp = Ecs_Api.DescribeDisks(rp);
+            JsonNode diskjn = mapper.readTree(temp);
+            diskjn = diskjn.get("Disks").get("Disk");
+
+            List<diskInfo> diskInfoList = new ArrayList<>();
+            for(JsonNode item:diskjn) {
+                diskInfo di = new diskInfo();
+                di = (diskInfo)mapper.readValue(item.toString(), diskInfo.class);
+                diskInfoList.add(di);
+            }
+
+
+
+
+
 
 
             //创建表格
             ExcelUtils.createExcel();
             ExcelUtils.createSheet("Sheet1");
-            ExcelUtils.addHeader(Arrays.asList("组织", "实例名称", "实例ID", "操作系统", "IP", "CPU核心数", "内存", "创建时间", "CPU平均使用率", "CPU最大使用率", "CPU最小使用率", "内存平均使用率", "内存最大使用率", "内存最小使用率", "开始时间", "截止时间")
+            ExcelUtils.addHeader(Arrays.asList("组织", "实例名称", "实例ID", "操作系统", "IP", "CPU核心数", "内存", "磁盘总容量", "创建时间", "CPU平均使用率", "CPU最大使用率", "CPU最小使用率", "内存平均使用率", "内存最大使用率", "内存最小使用率", "带宽平均值", "带宽最大值", "带宽最小值", "开始时间", "截止时间")
                     ,false);
 
             int num = ecsinfolist.size();
@@ -153,9 +173,31 @@ public class start {
                 List<List<Object>> rowList = new ArrayList<>();
                 for (int j = 0; j < midNum; j++) {
                     RequestDescribeMetricList rd = new RequestDescribeMetricList();
-                    row = rd.HandleSingleThread(rp, ecsinfolist.get(j), StartTime, EndTime, Period);
-                    while(row.get(0).equals("NULL"))
-                        row = rd.HandleSingleThread(rp, ecsinfolist.get(j), StartTime, EndTime, Period);
+                    List<Object> oneRow = new ArrayList<>();
+                    oneRow.add(ecsinfolist.get(j).getDepartmentName());
+                    oneRow.add(ecsinfolist.get(j).getInstanceName());
+                    oneRow.add(ecsinfolist.get(j).getInstanceId());
+                    oneRow.add(ecsinfolist.get(j).getOSName());
+                    oneRow.add(ecsinfolist.get(j).getNetworkInterfaces().getNetworkInterface().get(0).getPrimaryIpAddress());
+                    oneRow.add(ecsinfolist.get(j).getCpu());
+                    oneRow.add(ecsinfolist.get(j).getMemory()/1024);
+
+                    int totalDisk = 0;
+                    for(diskInfo item:diskInfoList) {
+                        if(item.getInstanceId().equals(ecsinfolist.get(j).getInstanceId()))
+                            totalDisk+=item.getSize();
+                    }
+                    oneRow.add(totalDisk);
+
+                    oneRow.add(utc2Local.utc2Local(ecsinfolist.get(j).getCreationTime(), "yyyy-MM-dd'T'HH:mm'Z'","yyyy-MM-dd HH:mm:ss"));
+                    List<Object> tmp = new ArrayList<>();
+                    tmp = rd.HandleSingleThread(rp, ecsinfolist.get(j), StartTime, EndTime, Period);
+                    while(tmp.get(0).equals("NULL"))
+                        tmp = rd.HandleSingleThread(rp, ecsinfolist.get(j), StartTime, EndTime, Period);
+
+                    oneRow.addAll(tmp);
+                    row = oneRow;
+
                     rowList.add(row);
                 }
                 return rowList;
@@ -175,9 +217,32 @@ public class start {
                             temp1 = (int)(j * progressNum);
                         }
                         RequestDescribeMetricList rd = new RequestDescribeMetricList();
-                        row = rd.HandleSingleThread(rp,ecsinfolist.get(j+midNum),StartTime,EndTime,Period);
-                        while(row.get(0).equals("NULL"))
-                            row = rd.HandleSingleThread(rp,ecsinfolist.get(j+midNum),StartTime,EndTime,Period);
+                        List<Object> oneRow = new ArrayList<>();
+                        oneRow.add(ecsinfolist.get(j+midNum).getDepartmentName());
+                        oneRow.add(ecsinfolist.get(j+midNum).getInstanceName());
+                        oneRow.add(ecsinfolist.get(j+midNum).getInstanceId());
+                        oneRow.add(ecsinfolist.get(j+midNum).getOSName());
+                        oneRow.add(ecsinfolist.get(j+midNum).getNetworkInterfaces().getNetworkInterface().get(0).getPrimaryIpAddress());
+                        oneRow.add(ecsinfolist.get(j+midNum).getCpu());
+                        oneRow.add(ecsinfolist.get(j+midNum).getMemory()/1024);
+
+                        int totalDisk = 0;
+                        for(diskInfo item:diskInfoList) {
+                            if(item.getInstanceId().equals(ecsinfolist.get(j+midNum).getInstanceId()))
+                                totalDisk+=item.getSize();
+                        }
+                        oneRow.add(totalDisk);
+
+                        oneRow.add(utc2Local.utc2Local(ecsinfolist.get(j+midNum).getCreationTime(), "yyyy-MM-dd'T'HH:mm'Z'","yyyy-MM-dd HH:mm:ss"));
+
+                        List<Object> tmp = new ArrayList<>();
+                        tmp = rd.HandleSingleThread(rp, ecsinfolist.get(j+midNum), StartTime, EndTime, Period);
+                        while(tmp.get(0).equals("NULL"))
+                            tmp = rd.HandleSingleThread(rp, ecsinfolist.get(j+midNum), StartTime, EndTime, Period);
+
+                        oneRow.addAll(tmp);
+                        row = oneRow;
+
                         rowList.add(row);
                     }
                     return rowList;

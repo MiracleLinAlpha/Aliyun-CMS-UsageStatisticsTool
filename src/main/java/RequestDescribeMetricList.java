@@ -44,20 +44,16 @@ public class RequestDescribeMetricList {
 
             //状态不为运行中，则返回状态
             if(!ecsinfo.getStatus().equals("Running")) {
-                row.add(ecsinfo.getDepartmentName());
-                row.add(ecsinfo.getInstanceName());
-                row.add(ecsinfo.getInstanceId());
-                row.add(ecsinfo.getOSName());
-                row.add(ecsinfo.getNetworkInterfaces().getNetworkInterface().get(0).getPrimaryIpAddress());
-                row.add(ecsinfo.getCpu());
-                row.add(ecsinfo.getMemory()/1024);
-                row.add(utc2Local.utc2Local(ecsinfo.getCreationTime(), "yyyy-MM-dd'T'HH:mm'Z'","yyyy-MM-dd HH:mm:ss"));
                 row.add("未运行");
                 row.add("未运行");
                 row.add("未运行");
                 row.add("未运行");
                 row.add("未运行");
                 row.add("未运行");
+                row.add("未运行");
+                row.add("未运行");
+                row.add("未运行");
+
                 row.add("未运行");
                 row.add("未运行");
 
@@ -67,20 +63,16 @@ public class RequestDescribeMetricList {
 
             //结束时间比创建时间早则返回大于结束时间
             if(df.parse(EndTime).getTime() - df.parse(UsefulStartTime).getTime() <= 0) {
-                row.add(ecsinfo.getDepartmentName());
-                row.add(ecsinfo.getInstanceName());
-                row.add(ecsinfo.getInstanceId());
-                row.add(ecsinfo.getOSName());
-                row.add(ecsinfo.getNetworkInterfaces().getNetworkInterface().get(0).getPrimaryIpAddress());
-                row.add(ecsinfo.getCpu());
-                row.add(ecsinfo.getMemory()/1024);
-                row.add(utc2Local.utc2Local(ecsinfo.getCreationTime(), "yyyy-MM-dd'T'HH:mm'Z'","yyyy-MM-dd HH:mm:ss"));
                 row.add("创建时间早于结束时间");
                 row.add("创建时间早于结束时间");
                 row.add("创建时间早于结束时间");
                 row.add("创建时间早于结束时间");
                 row.add("创建时间早于结束时间");
                 row.add("创建时间早于结束时间");
+                row.add("创建时间早于结束时间");
+                row.add("创建时间早于结束时间");
+                row.add("创建时间早于结束时间");
+
                 row.add("创建时间早于结束时间");
                 row.add("创建时间早于结束时间");
 
@@ -101,20 +93,18 @@ public class RequestDescribeMetricList {
             memMax = mapTemp.get("Max");
             memMin = mapTemp.get("Min");
 
-            row.add(ecsinfo.getDepartmentName());
-            row.add(ecsinfo.getInstanceName());
-            row.add(ecsinfo.getInstanceId());
-            row.add(ecsinfo.getOSName());
-            row.add(ecsinfo.getNetworkInterfaces().getNetworkInterface().get(0).getPrimaryIpAddress());
-            row.add(ecsinfo.getCpu());
-            row.add(ecsinfo.getMemory()/1024);
-            row.add(utc2Local.utc2Local(ecsinfo.getCreationTime(), "yyyy-MM-dd'T'HH:mm'Z'","yyyy-MM-dd HH:mm:ss"));
+            mapTemp = analysisResponse(rp,"IntranetInRate",ecsinfo.getInstanceId(),String.valueOf(ecsinfo.getDepartment()),UsefulStartTime,EndTime,Period);
+
+            mapTemp = analysisResponse(rp,"memory_usedutilization",ecsinfo.getInstanceId(),String.valueOf(ecsinfo.getDepartment()),UsefulStartTime,EndTime,Period);
+
+
             row.add(cpuAvg);
             row.add(cpuMax);
             row.add(cpuMin);
             row.add(memAvg);
             row.add(memMax);
             row.add(memMin);
+
             row.add(TimeUtil.StampToTime((long)timeTmpStart));
             row.add(TimeUtil.StampToTime((long)timeTmpEnd));
 
