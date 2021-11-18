@@ -95,7 +95,7 @@ public class RequestDescribeMetricList {
 
             mapTemp = analysisResponse(rp,"IntranetInRate",ecsinfo.getInstanceId(),String.valueOf(ecsinfo.getDepartment()),UsefulStartTime,EndTime,Period);
 
-            mapTemp = analysisResponse(rp,"memory_usedutilization",ecsinfo.getInstanceId(),String.valueOf(ecsinfo.getDepartment()),UsefulStartTime,EndTime,Period);
+            mapTemp = analysisResponse(rp,"IntranetOutRate",ecsinfo.getInstanceId(),String.valueOf(ecsinfo.getDepartment()),UsefulStartTime,EndTime,Period);
 
 
             row.add(cpuAvg);
