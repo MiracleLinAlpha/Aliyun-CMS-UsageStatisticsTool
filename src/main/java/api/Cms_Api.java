@@ -8,7 +8,7 @@ import com.aliyun.asapi.ASClient;
 import entity.requestParams;
 
 public class Cms_Api {
-	public static String DescribeMetricListByEcs(requestParams rp, String MetricName, String Namespace, String InstanceId, String organizationid, String StartTime, String EndTime, String Period) {
+	public static String DescribeMetricListByEcs(requestParams rp, String MetricName, String Namespace,String key, String arg, String InstanceId, String organizationid, String StartTime, String EndTime, String Period) {
 		try {
     		Map<String, Object> requestParams = new HashMap<String, Object>();
      		requestParams.put("action", "DescribeMetricList");
@@ -20,6 +20,8 @@ public class Cms_Api {
 
      	    requestParams.put("MetricName", MetricName);
      	    requestParams.put("Namespace", Namespace);
+     	    if(key.equals("disk"))
+				requestParams.put("Dimensions", "{\"instanceId\":\"" + InstanceId + "\",\"mountpoint\":\"" + arg + "\"}");
      	    requestParams.put("Dimensions", "{\"instanceId\":\"" + InstanceId + "\"}");
 
 
