@@ -205,7 +205,7 @@ public class go {
                             List<Object> rowList = new ArrayList<>();
                             switch (arg) {
                                 case "base":
-                                    rowList.addAll(goHandleArg(rp,StartTime,EndTime,Period,"base",ecsinfolist.get(i),null));
+                                    rowList.addAll(goBaseInfo(rp,ecsinfolist.get(i),diskInfoList));
                                     break;
                                 case "cpu":
                                     excelHeader.addAll(Arrays.asList("CPU平均使用率", "CPU最大使用率", "CPU最小使用率"));
@@ -253,7 +253,7 @@ public class go {
                             List<Object> rowList = new ArrayList<>();
                             switch (arg) {
                                 case "base":
-                                    rowList.addAll(goHandleArg(rp,StartTime,EndTime,Period,"base",ecsinfolist.get(j+midNum),null));
+                                    rowList.addAll(goBaseInfo(rp,ecsinfolist.get(j+midNum),diskInfoList));
                                     break;
                                 case "cpu":
                                     excelHeader.addAll(Arrays.asList("CPU平均使用率", "CPU最大使用率", "CPU最小使用率"));
@@ -302,6 +302,33 @@ public class go {
     }
 
 
+    public List<Object> goBaseInfo(requestParams rp, ecsInfo ecsInfo, List<diskInfo> diskInfoList) {
+        List<Object> oneRow = new ArrayList<>();
+        try {
+            oneRow.add(ecsInfo.getDepartmentName());
+            oneRow.add(ecsInfo.getInstanceName());
+            oneRow.add(ecsInfo.getInstanceId());
+            oneRow.add(ecsInfo.getOSName());
+            oneRow.add(ecsInfo.getNetworkInterfaces().getNetworkInterface().get(0).getPrimaryIpAddress());
+            oneRow.add(ecsInfo.getCpu());
+            oneRow.add(ecsInfo.getMemory()/1024);
+
+            int totalDisk = 0;
+            for(diskInfo item:diskInfoList) {
+                if(item.getInstanceId().equals(ecsInfo.getInstanceId())) {
+                    totalDisk+=item.getSize();
+                }
+            }
+            oneRow.add(totalDisk);
+            oneRow.add(utc2Local.utc2Local(ecsInfo.getCreationTime(), "yyyy-MM-dd'T'HH:mm'Z'","yyyy-MM-dd HH:mm:ss"));
+
+            return oneRow;
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return oneRow;
+    }
+
     public List<Object> goHandleArg(requestParams rp, String StartTime, String EndTime, String Period, String arg, ecsInfo ecsInfo, List<diskInfo> diskInfoList) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<Object> oneRow = new ArrayList<>();
@@ -345,24 +372,6 @@ public class go {
 
 
             switch (arg) {
-                case "base":
-                    oneRow.add(ecsInfo.getDepartmentName());
-                    oneRow.add(ecsInfo.getInstanceName());
-                    oneRow.add(ecsInfo.getInstanceId());
-                    oneRow.add(ecsInfo.getOSName());
-                    oneRow.add(ecsInfo.getNetworkInterfaces().getNetworkInterface().get(0).getPrimaryIpAddress());
-                    oneRow.add(ecsInfo.getCpu());
-                    oneRow.add(ecsInfo.getMemory()/1024);
-
-                    int totalDisk = 0;
-                    for(diskInfo item:diskInfoList) {
-                        if(item.getInstanceId().equals(ecsInfo.getInstanceId())) {
-                            totalDisk+=item.getSize();
-                        }
-                    }
-                    oneRow.add(totalDisk);
-                    oneRow.add(utc2Local.utc2Local(ecsInfo.getCreationTime(), "yyyy-MM-dd'T'HH:mm'Z'","yyyy-MM-dd HH:mm:ss"));
-                    break;
                 case "cpu":
                     mapTemp = analysisResponse(rp,"CPUUtilization","cpu","",ecsInfo.getInstanceId(),String.valueOf(ecsInfo.getDepartment()),UsefulStartTime,EndTime,Period);
                     Avg = mapTemp.get("Avg");
@@ -378,8 +387,10 @@ public class go {
                 case "disk":
                     float diskUse = 0,diskTotal = 0,totalUse = 0;
                     List<String> diskPath = new ArrayList<>();
+                    int totalDisk = 0;
                     for(diskInfo item:diskInfoList) {
                         if(item.getInstanceId().equals(ecsInfo.getInstanceId())) {
+                            totalDisk+=item.getSize();
                             diskPath.add(item.getDevice()+ "-" + String.valueOf(item.getSize()));
                         }
 
