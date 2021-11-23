@@ -26,6 +26,7 @@ Aliyun-CMS-UsageStatisticsTool
 ## 更新记录
 
 * 2021-09-29 `Release v1.0.0` 初稿完成
+* 2021-11-23 `Release v2.0.0` 增加磁盘总容量，带宽及磁盘使用率
 
 ## 准备动作
 
