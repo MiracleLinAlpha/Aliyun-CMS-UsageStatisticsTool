@@ -193,6 +193,27 @@ public class go {
 
             ProgressBar.printProgress_doing();
 
+            for(String arg:args) {
+                switch (arg) {
+                    case "cpu":
+                        excelHeader.addAll(Arrays.asList("CPU平均使用率", "CPU最大使用率", "CPU最小使用率"));
+                        break;
+                    case "mem":
+                        excelHeader.addAll(Arrays.asList("内存平均使用率", "内存最大使用率", "内存最小使用率"));
+                        break;
+                    case "disk":
+                        excelHeader.addAll(Arrays.asList("磁盘总使用率"));
+                        break;
+                    case "bandwidth":
+                        excelHeader.addAll(Arrays.asList("带宽平均值", "带宽最大值", "带宽最小值"));
+                        break;
+                }
+                excelHeader.addAll(Arrays.asList("实际统计开始时间", "实际统计结束时间"));
+            }
+
+
+
+
             int num = ecsinfolist.size();
             int midNum = (int)(num/2);
 
@@ -201,31 +222,10 @@ public class go {
                 List<List<Object>> cf1List = new ArrayList<>();
                 try {
                     for(int i=0;i<midNum;i++) {
-                        for(String arg:args) {
-                            List<Object> rowList = new ArrayList<>();
-                            switch (arg) {
-                                case "base":
-                                    rowList.addAll(goBaseInfo(rp,ecsinfolist.get(i),diskInfoList));
-                                    break;
-                                case "cpu":
-                                    excelHeader.addAll(Arrays.asList("CPU平均使用率", "CPU最大使用率", "CPU最小使用率"));
-                                    rowList.addAll(goHandleArg(rp,StartTime,EndTime,Period,"cpu",ecsinfolist.get(i),null));
-                                    break;
-                                case "mem":
-                                    excelHeader.addAll(Arrays.asList("内存平均使用率", "内存最大使用率", "内存最小使用率"));
-                                    rowList.addAll(goHandleArg(rp,StartTime,EndTime,Period,"mem",ecsinfolist.get(i),null));
-                                    break;
-                                case "disk":
-                                    excelHeader.addAll(Arrays.asList("磁盘总使用率"));
-                                    rowList.addAll(goHandleArg(rp,StartTime,EndTime,Period,"disk",ecsinfolist.get(i),diskInfoList));
-                                    break;
-                                case "bandwidth":
-                                    excelHeader.addAll(Arrays.asList("带宽平均值", "带宽最大值", "带宽最小值"));
-                                    rowList.addAll(goHandleArg(rp,StartTime,EndTime,Period,"bandwidth",ecsinfolist.get(i),null));
-                                    break;
-                            }
-                            cf1List.add(rowList);
-                        }
+                        List<Object> tmpList = new ArrayList<>();
+                        tmpList.addAll(goBaseInfo(rp,ecsinfolist.get(i),diskInfoList));
+                        tmpList.addAll(goHandleStatistics(rp,StartTime,EndTime,Period,args,ecsinfolist.get(i),diskInfoList));
+                        cf1List.add(tmpList);
                     }
 
                     return cf1List;
@@ -249,31 +249,10 @@ public class go {
                             temp1 = (int)(j * progressNum);
                         }
 
-                        for(String arg:args) {
-                            List<Object> rowList = new ArrayList<>();
-                            switch (arg) {
-                                case "base":
-                                    rowList.addAll(goBaseInfo(rp,ecsinfolist.get(j+midNum),diskInfoList));
-                                    break;
-                                case "cpu":
-                                    excelHeader.addAll(Arrays.asList("CPU平均使用率", "CPU最大使用率", "CPU最小使用率"));
-                                    rowList.addAll(goHandleArg(rp,StartTime,EndTime,Period,"cpu",ecsinfolist.get(j+midNum),null));
-                                    break;
-                                case "mem":
-                                    excelHeader.addAll(Arrays.asList("内存平均使用率", "内存最大使用率", "内存最小使用率"));
-                                    rowList.addAll(goHandleArg(rp,StartTime,EndTime,Period,"mem",ecsinfolist.get(j+midNum),null));
-                                    break;
-                                case "disk":
-                                    excelHeader.addAll(Arrays.asList("磁盘总使用率"));
-                                    rowList.addAll(goHandleArg(rp,StartTime,EndTime,Period,"disk",ecsinfolist.get(j+midNum),diskInfoList));
-                                    break;
-                                case "bandwidth":
-                                    excelHeader.addAll(Arrays.asList("带宽平均值", "带宽最大值", "带宽最小值"));
-                                    rowList.addAll(goHandleArg(rp,StartTime,EndTime,Period,"bandwidth",ecsinfolist.get(j+midNum),null));
-                                    break;
-                            }
-                            cf2List.add(rowList);
-                        }
+                        List<Object> tmpList = new ArrayList<>();
+                        tmpList.addAll(goBaseInfo(rp,ecsinfolist.get(j+midNum),diskInfoList));
+                        tmpList.addAll(goHandleStatistics(rp,StartTime,EndTime,Period,args,ecsinfolist.get(j+midNum),diskInfoList));
+                        cf2List.add(tmpList);
                     }
 
                     return cf2List;
@@ -329,11 +308,13 @@ public class go {
         return oneRow;
     }
 
-    public List<Object> goHandleArg(requestParams rp, String StartTime, String EndTime, String Period, String arg, ecsInfo ecsInfo, List<diskInfo> diskInfoList) {
+
+    public List<Object> goHandleStatistics(requestParams rp, String StartTime, String EndTime, String Period, List<String> args, ecsInfo ecsInfo, List<diskInfo> diskInfoList) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<Object> oneRow = new ArrayList<>();
-        Object Avg = 0, Max = 0, Min = 0;
+        Object Avg = 0, Max = 0, Min = 0, StatisticStartTime = "null", StatisticEndTime = "null";
         Map<String,Object> mapTemp = new HashMap<>();
+
         try {
             //筛选创建时间小于开始时间的ECS，将开始时间修改为创建时间
             String creationtimeUtc;
@@ -364,6 +345,60 @@ public class go {
             }
 
 
+
+            for(String arg:args) {
+                switch (arg) {
+                    case "cpu":
+                        mapTemp = goHandleArg(rp,UsefulStartTime,EndTime,Period,"cpu",ecsInfo,null);
+                        oneRow.addAll(Arrays.asList(mapTemp.get("Avg"),mapTemp.get("Max"),mapTemp.get("Min")));
+                        if(!StatisticStartTime.toString().equals("null"))
+                            StatisticStartTime = mapTemp.get("StatisticStartTime");
+                        if(!StatisticEndTime.toString().equals("null"))
+                            StatisticEndTime = mapTemp.get("StatisticEndTime");
+                        break;
+                    case "mem":
+                        mapTemp = goHandleArg(rp,UsefulStartTime,EndTime,Period,"mem",ecsInfo,null);
+                        oneRow.addAll(Arrays.asList(mapTemp.get("Avg")));
+                        if(!StatisticStartTime.toString().equals("null"))
+                            StatisticStartTime = mapTemp.get("StatisticStartTime");
+                        if(!StatisticEndTime.toString().equals("null"))
+                            StatisticEndTime = mapTemp.get("StatisticEndTime");
+                        break;
+                    case "disk":
+                        mapTemp = goHandleArg(rp,UsefulStartTime,EndTime,Period,"disk",ecsInfo,diskInfoList);
+                        oneRow.addAll(Arrays.asList(mapTemp.get("Avg"),mapTemp.get("Max"),mapTemp.get("Min")));
+                        if(!StatisticStartTime.toString().equals("null"))
+                            StatisticStartTime = mapTemp.get("StatisticStartTime");
+                        if(!StatisticEndTime.toString().equals("null"))
+                            StatisticEndTime = mapTemp.get("StatisticEndTime");
+                        break;
+                    case "bandwidth":
+                        mapTemp = goHandleArg(rp,UsefulStartTime,EndTime,Period,"bandwidth",ecsInfo,null);
+                        oneRow.addAll(Arrays.asList(mapTemp.get("Avg"),mapTemp.get("Max"),mapTemp.get("Min")));
+                        if(!StatisticStartTime.toString().equals("null"))
+                            StatisticStartTime = mapTemp.get("StatisticStartTime");
+                        if(!StatisticEndTime.toString().equals("null"))
+                            StatisticEndTime = mapTemp.get("StatisticEndTime");
+                        break;
+                }
+
+                oneRow.addAll(Arrays.asList(StatisticStartTime,StatisticEndTime));
+            }
+
+            return oneRow;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return oneRow;
+    }
+
+
+
+    public Map<String,Object> goHandleArg(requestParams rp, String UsefulStartTime, String EndTime, String Period, String arg, ecsInfo ecsInfo, List<diskInfo> diskInfoList) {
+        Map<String,Object> oneRow = new HashMap<>();
+        Object Avg = 0, Max = 0, Min = 0;
+        Map<String,Object> mapTemp = new HashMap<>();
+        try {
             //正常处理
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
@@ -400,10 +435,12 @@ public class go {
                         strTmp = diskPath.get(0).split("-");
                         mapTemp = analysisResponse(rp,"vm.DiskUtilization","disk",strTmp[0],ecsInfo.getInstanceId(),String.valueOf(ecsInfo.getDepartment()),UsefulStartTime,EndTime,Period);
                         if(mapTemp.get("Avg").equals("服务器返回数据出错")) {
-                            oneRow.add("NULL");
+                            oneRow.put("Avg","NULL");
                             return oneRow;
                         }
-                        oneRow.add(mapTemp.get("Avg"));
+                        oneRow.put("Avg",totalUse);
+                        oneRow.put("StatisticStartTime",TimeUtil.StampToTime((long)mapTemp.get("start")));
+                        oneRow.put("StatisticEndTime",TimeUtil.StampToTime((long)mapTemp.get("end")));
                         return oneRow;
                     }else {
                         for(String item:diskPath) {
@@ -411,7 +448,7 @@ public class go {
                             strTmp = item.split("-");
                             mapTemp = analysisResponse(rp,"vm.DiskUtilization","disk",strTmp[0],ecsInfo.getInstanceId(),String.valueOf(ecsInfo.getDepartment()),UsefulStartTime,EndTime,Period);
                             if(mapTemp.get("Avg").equals("服务器返回数据出错")) {
-                                oneRow.add("NULL");
+                                oneRow.put("Avg","NULL");
                                 return oneRow;
                             }
                             if(!mapTemp.get("Avg").equals("NULL")) {
@@ -423,7 +460,9 @@ public class go {
 
                         totalUse = diskUse/diskTotal;
 
-                        oneRow.add(totalUse);
+                        oneRow.put("Avg",totalUse);
+                        oneRow.put("StatisticStartTime",TimeUtil.StampToTime((long)mapTemp.get("start")));
+                        oneRow.put("StatisticEndTime",TimeUtil.StampToTime((long)mapTemp.get("end")));
                         return oneRow;
                     }
                 case "bandwidth":
@@ -434,7 +473,7 @@ public class go {
                     mapTemp = analysisResponse(rp,"IntranetOutRate","bandwidth","",ecsInfo.getInstanceId(),String.valueOf(ecsInfo.getDepartment()),UsefulStartTime,EndTime,Period);
 
                     if(Avg.equals("结果为空")) {
-                        oneRow.add("NULL");
+                        oneRow.put("Avg","NULL");
                         return oneRow;
                     }
 
@@ -451,15 +490,15 @@ public class go {
             }
 
             if(Avg.equals("结果为空")) {
-                oneRow.add("NULL");
+                oneRow.put("Avg","NULL");
                 return oneRow;
             }
 
-            oneRow.add(Avg);
-            oneRow.add(Max);
-            oneRow.add(Min);
-            oneRow.add(TimeUtil.StampToTime((long)mapTemp.get("start")));
-            oneRow.add(TimeUtil.StampToTime((long)mapTemp.get("end")));
+            oneRow.put("Avg",Avg);
+            oneRow.put("Max",Max);
+            oneRow.put("Min",Min);
+            oneRow.put("StatisticStartTime",TimeUtil.StampToTime((long)mapTemp.get("start")));
+            oneRow.put("StatisticEndTime",TimeUtil.StampToTime((long)mapTemp.get("end")));
 
             return oneRow;
         }catch (Exception e) {
